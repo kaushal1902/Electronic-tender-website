@@ -1,0 +1,144 @@
+{% extends 'admin/analytics/base.html' %}
+
+{% block analytics_title %}Application Analytics{% endblock %}
+
+{% block analytics_content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <h5 class="chart-title">Application Status Distribution</h5>
+            {% if charts.application_status %}
+                <img src="data:image/png;base64,{{ charts.application_status }}" alt="Application Status Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="analytics-table-container p-3">
+            <h5 class="chart-title">Status Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = namespace(value=0) %}
+                        {% for status in status_data %}
+                            {% set total.value = total.value + status.count %}
+                        {% endfor %}
+                        
+                        {% for status in status_data %}
+                            <tr>
+                                <td>
+                                    <span class="status-badge 
+                                        {% if status.status == 'pending' %}status-pending
+                                        {% elif status.status == 'approved' %}status-approved
+                                        {% elif status.status == 'rejected' %}status-rejected
+                                        {% elif status.status == 'winner' %}status-approved
+                                        {% endif %}">
+                                        {{ status.name }}
+                                    </span>
+                                </td>
+                                <td class="text-end">{{ status.count }}</td>
+                                <td class="text-end">
+                                    {% if total.value > 0 %}
+                                        {{ ((status.count / total.value) * 100)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="chart-container">
+            <h5 class="chart-title">Application Trend (Last 90 Days)</h5>
+            {% if charts.tender_activity %}
+                <img src="data:image/png;base64,{{ charts.tender_activity }}" alt="Application Trend Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="analytics-card">
+            <h5 class="card-title">Price Quote Analysis</h5>
+            <div class="mt-4">
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="small text-muted">Avg. Price Quote (Approved)</div>
+                        <div class="fw-bold">-</div>
+                    </div>
+                    <div class="progress analytics-progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 65%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="small text-muted">Avg. Price Quote (Rejected)</div>
+                        <div class="fw-bold">-</div>
+                    </div>
+                    <div class="progress analytics-progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 85%"></div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="small text-muted">Avg. Price Quote (Winners)</div>
+                        <div class="fw-bold">-</div>
+                    </div>
+                    <div class="progress analytics-progress">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 55%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="export-section">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="export-heading mb-0">Export Application Data</h5>
+                    <p class="text-muted mb-0">Download application data as CSV for further analysis</p>
+                </div>
+                {% if export_data %}
+                    <button class="btn btn-primary export-csv-btn" 
+                           data-csv="{{ export_data.csv_data }}" 
+                           data-filename="{{ export_data.filename }}">
+                        <i class="fas fa-download me-2"></i>Download CSV
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary" disabled>
+                        <i class="fas fa-download me-2"></i>No Data Available
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

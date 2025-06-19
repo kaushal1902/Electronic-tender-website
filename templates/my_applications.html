@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .applications-container {
+        max-width: 900px;
+        margin: 40px auto;
+    }
+
+    .application-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .application-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .application-title {
+        font-weight: 700;
+        color: var(--dark-color);
+    }
+
+    .application-date {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .application-tender {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+
+    .application-status-badge {
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 50px;
+        display: inline-block;
+    }
+
+    .application-details {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+
+    .application-detail-item {
+        margin-bottom: 5px;
+        display: flex;
+    }
+
+    .application-detail-label {
+        font-weight: 600;
+        width: 110px;
+        color: var(--dark-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .status-winner {
+        background-color: #2ecc71;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="applications-container">
+        <h2 class="mb-4">My Applications</h2>
+
+        {% if applications %}
+            <div class="row">
+                {% for application in applications %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card application-card">
+                            <div class="card-body">
+                                <div class="application-header mb-2">
+                                    <span class="application-status-badge 
+                                        {% if application.status == 'pending' %}status-pending
+                                        {% elif application.status == 'approved' %}status-approved
+                                        {% elif application.status == 'rejected' %}status-rejected
+                                        {% elif application.status == 'winner' or application.is_winner %}status-winner
+                                        {% endif %}">
+                                        {% if application.status == 'winner' or application.is_winner %}
+                                            <i class="fas fa-trophy me-1"></i> Winner
+                                        {% else %}
+                                            {{ application.status }}
+                                        {% endif %}
+                                    </span>
+                                    <span class="application-date">
+                                        Submitted: {{ application.created_at.strftime('%d %b %Y') }}
+                                    </span>
+                                </div>
+
+                                <h5 class="application-tender">
+                                    <a href="{{ url_for('tender_details', tender_id=application.tender.id) }}">
+                                        {{ application.tender.title }}
+                                    </a>
+                                </h5>
+
+                                <div class="application-details">
+                                    <div class="application-detail-item">
+                                        <div class="application-detail-label">Price Quote:</div>
+                                        <div>₹{{ application.price_quote }}</div>
+                                    </div>
+
+                                    <div class="application-detail-item">
+                                        <div class="application-detail-label">Completion:</div>
+                                        <div>{{ application.completion_time }} days</div>
+                                    </div>
+
+                                    {% if application.admin_remarks %}
+                                        <div class="mt-3">
+                                            <strong>Admin Remarks:</strong>
+                                            <p class="mt-1 text-muted small">{{ application.admin_remarks }}</p>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#proposal-{{ application.id }}">
+                                    View Proposal
+                                </button>
+
+                                <div class="collapse mt-3" id="proposal-{{ application.id }}">
+                                    <div class="card card-body">
+                                        {{ application.proposal }}
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('download_application', application_id=application.id) }}" class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-download"></i> Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="mb-3">
+                    <i class="fas fa-file-alt fa-4x text-muted"></i>
+                </div>
+                <h4>No Applications Yet</h4>
+                <p class="text-muted mb-4">You haven't applied to any tenders yet. Browse available tenders to submit your first application.</p>
+                <a href="{{ url_for('tenders') }}" class="btn btn-primary">Browse Tenders</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

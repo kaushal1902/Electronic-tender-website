@@ -1,0 +1,204 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Application Details - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .application-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .application-header {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .application-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .info-group {
+        flex: 1;
+        margin-right: 15px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        font-weight: 700;
+    }
+
+    .proposal-section {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid #dee2e6;
+    }
+
+    .status-update-section {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid #dee2e6;
+    }
+
+    .applicant-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .applicant-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--admin-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin-right: 15px;
+    }
+
+    .status-indicator {
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .status-pending {
+        background-color: rgba(243, 156, 18, 0.1);
+        color: var(--admin-warning);
+        border: 1px solid rgba(243, 156, 18, 0.2);
+    }
+
+    .status-approved {
+        background-color: rgba(46, 204, 113, 0.1);
+        color: var(--admin-success);
+        border: 1px solid rgba(46, 204, 113, 0.2);
+    }
+
+    .status-rejected {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: var(--admin-danger);
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="application-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Application Details</h2>
+            <a href="{{ url_for('admin_applications') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Applications
+            </a>
+        </div>
+
+        <!-- Application Header -->
+        <div class="application-header">
+            <div class="applicant-info">
+                <div class="applicant-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h5>{{ application.user.name }}</h5>
+                    <p class="text-muted mb-0">{{ application.user.email }}</p>
+                </div>
+            </div>
+
+            <div class="status-indicator status-{{ application.status }}">
+                Current Status: 
+                {% if application.status == 'pending' %}
+                    <i class="fas fa-clock me-2"></i>Pending Review
+                {% elif application.status == 'approved' %}
+                    <i class="fas fa-check-circle me-2"></i>Approved
+                {% elif application.status == 'rejected' %}
+                    <i class="fas fa-times-circle me-2"></i>Rejected
+                {% endif %}
+            </div>
+
+            <div class="application-info">
+                <div class="info-group">
+                    <div class="info-label">Tender</div>
+                    <div class="info-value">
+                        <a href="{{ url_for('tender_details', tender_id=application.tender.id) }}" target="_blank">
+                            {{ application.tender.title }}
+                        </a>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">Submission Date</div>
+                    <div class="info-value">{{ application.created_at.strftime('%d %b %Y, %H:%M') }}</div>
+                </div>
+            </div>
+
+            <div class="application-info">
+                <div class="info-group">
+                    <div class="info-label">Price Quote</div>
+                    <div class="info-value">₹{{ application.price_quote }}</div>
+                </div>
+
+                <div class="info-group">
+                    <div class="info-label">Completion Time</div>
+                    <div class="info-value">{{ application.completion_time }} days</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proposal Section -->
+        <div class="proposal-section">
+            <h5 class="mb-3">Proposal</h5>
+            <div class="proposal-content">
+                {{ application.proposal|nl2br|safe }}
+            </div>
+        </div>
+
+        <!-- Status Update Section -->
+        <div class="status-update-section">
+            <h5 class="mb-3">Update Application Status</h5>
+            <a href="{{ url_for('download_application', application_id=application.id) }}" class="btn btn-info mb-3">
+                        <i class="fas fa-download"></i> Download Application Details
+                    </a>
+            <form action="{{ url_for('update_application_status', application_id=application.id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" name="status">
+                        <option value="pending" {% if application.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="approved" {% if application.status == 'approved' %}selected{% endif %}>Approved</option>
+                        <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Admin Remarks</label>
+                    <textarea class="form-control" name="admin_remarks" rows="4" placeholder="Add any remarks or feedback for the applicant">{{ application.admin_remarks or '' }}</textarea>
+                    <div class="form-text">
+                        These remarks will be visible to the applicant.
+                    </div>
+                </div>
+
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Update Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

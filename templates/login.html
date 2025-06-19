@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        max-width: 500px;
+        margin: 60px auto;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/captcha.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordField = document.querySelector('input[type="password"]');
+        
+        togglePassword.addEventListener('click', function() {
+            // Toggle the type attribute
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+            
+            // Toggle the eye icon
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="login-container">
+        <div class="form-container">
+            <h2 class="text-center mb-4">Login to Your Account</h2>
+            
+            <form method="POST" action="{{ url_for('login') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", placeholder="Enter your email") }}
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label") }}
+                    <div class="input-group">
+                        {{ form.password(class="form-control", placeholder="Enter your password") }}
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- CAPTCHA -->
+                <div class="mb-3">
+                    <label class="form-label">CAPTCHA Verification</label>
+                    <div class="captcha-container mb-2">
+                        <span class="captcha-text">{{ session.get('captcha', '') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-end mb-2">
+                        <button id="refresh-captcha" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-sync-alt me-1"></i>Refresh
+                        </button>
+                    </div>
+                    {{ form.captcha.label(class="form-label") }}
+                    {{ form.captcha(class="form-control", placeholder="Enter the code shown above") }}
+                    {% if form.captcha.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.captcha.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3 form-check">
+                    {{ form.remember_me(class="form-check-input") }}
+                    {{ form.remember_me.label(class="form-check-label") }}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

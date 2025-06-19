@@ -1,0 +1,71 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Analytics - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/analytics.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="admin-page-title mb-4">{% block analytics_title %}Analytics{% endblock %}</h1>
+    
+    <!-- Analytics Navigation -->
+    <div class="analytics-nav">
+        <ul class="analytics-nav-tabs">
+            <li class="analytics-nav-item">
+                <a href="{{ url_for('analytics_dashboard') }}" class="analytics-nav-link {% if request.path == url_for('analytics_dashboard') %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt analytics-nav-icon"></i>Dashboard
+                </a>
+            </li>
+            <li class="analytics-nav-item">
+                <a href="{{ url_for('analytics_tenders') }}" class="analytics-nav-link {% if request.path == url_for('analytics_tenders') %}active{% endif %}">
+                    <i class="fas fa-file-contract analytics-nav-icon"></i>Tenders
+                </a>
+            </li>
+            <li class="analytics-nav-item">
+                <a href="{{ url_for('analytics_applications') }}" class="analytics-nav-link {% if request.path == url_for('analytics_applications') %}active{% endif %}">
+                    <i class="fas fa-clipboard-list analytics-nav-icon"></i>Applications
+                </a>
+            </li>
+            <li class="analytics-nav-item">
+                <a href="{{ url_for('analytics_users') }}" class="analytics-nav-link {% if request.path == url_for('analytics_users') %}active{% endif %}">
+                    <i class="fas fa-users analytics-nav-icon"></i>Users
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Analytics Content -->
+    {% block analytics_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // CSV Export functionality
+    $(document).ready(function() {
+        $('.export-csv-btn').on('click', function() {
+            const csvContent = $(this).data('csv');
+            const filename = $(this).data('filename') || 'export.csv';
+            
+            if (!csvContent) {
+                return;
+            }
+            
+            // Create a blob and download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.display = 'none';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+</script>
+{% endblock %}

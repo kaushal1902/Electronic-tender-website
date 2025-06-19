@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 80px 0;
+    }
+    
+    .error-code {
+        font-size: 8rem;
+        font-weight: 700;
+        color: var(--accent-color);
+        line-height: 1;
+        margin-bottom: 20px;
+        opacity: 0.6;
+    }
+    
+    .error-message {
+        font-size: 2rem;
+        font-weight: 600;
+        margin-bottom: 30px;
+        color: var(--dark-color);
+    }
+    
+    .error-description {
+        font-size: 1.1rem;
+        color: #6c757d;
+        max-width: 500px;
+        margin: 0 auto 30px;
+    }
+    
+    .error-icon {
+        font-size: 5rem;
+        color: var(--accent-color);
+        opacity: 0.6;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="error-code">500</div>
+        <div class="error-message">Server Error</div>
+        <div class="error-description">
+            We're sorry, but something went wrong on our end. Our team has been notified and we're working to fix the issue.
+        </div>
+        <div class="error-actions">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+            <button onclick="window.location.reload()" class="btn btn-outline-primary btn-lg ms-2">
+                <i class="fas fa-sync-alt me-2"></i>Try Again
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

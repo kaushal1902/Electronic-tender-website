@@ -1,0 +1,231 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Manage Users - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="admin-actions mb-4">
+        <h2>Manage Users</h2>
+        <div class="admin-filter">
+            <form action="{{ url_for('admin_users') }}" method="GET" class="d-flex gap-2">
+                <div class="input-group" style="width: 300px;">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search users..." name="search" value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="admin-table mb-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Verified</th>
+                    <th>Registration Date</th>
+                    <th>Applications</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% for role in user.roles %}
+                                <span class="badge bg-secondary">{{ role.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if user.is_verified %}
+                                <span class="text-success"><i class="fas fa-check-circle"></i> Yes</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-times-circle"></i> No</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%d %b %Y') }}</td>
+                        <td>{{ user.applications.count() }}</td>
+                        <td>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ user.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Actions
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ user.id }}">
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#userDetailsModal{{ user.id }}">View Details</a></li>
+                                    {% if not user.is_verified %}
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#verifyUserModal{{ user.id }}">Verify User</a></li>
+                                    {% endif %}
+                                    {% if not user.roles or not user.roles|selectattr('name', 'eq', 'admin')|list %}
+                                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#makeAdminModal{{ user.id }}">Make Admin</a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            
+                            <!-- User Details Modal -->
+                            <div class="modal fade" id="userDetailsModal{{ user.id }}" tabindex="-1" aria-labelledby="userDetailsModalLabel{{ user.id }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="userDetailsModalLabel{{ user.id }}">User Details</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <strong>Name:</strong> {{ user.name }}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Email:</strong> {{ user.email }}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Phone:</strong> {{ user.phone or 'Not provided' }}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Address:</strong> {{ user.address or 'Not provided' }}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Roles:</strong> 
+                                                {% for role in user.roles %}
+                                                    <span class="badge bg-secondary">{{ role.name }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Registration Date:</strong> {{ user.created_at.strftime('%d %b %Y, %H:%M') }}
+                                            </div>
+                                            <div class="mb-3">
+                                                <strong>Verified:</strong> {{ 'Yes' if user.is_verified else 'No' }}
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Verify User Modal -->
+                            {% if not user.is_verified %}
+                                <div class="modal fade" id="verifyUserModal{{ user.id }}" tabindex="-1" aria-labelledby="verifyUserModalLabel{{ user.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="verifyUserModalLabel{{ user.id }}">Verify User</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Are you sure you want to manually verify this user?</p>
+                                                <p><strong>Name:</strong> {{ user.name }}</p>
+                                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <form action="#" method="POST">
+                                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                    <button type="submit" class="btn btn-primary">Verify User</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Make Admin Modal -->
+                            {% if not user.roles or not user.roles|selectattr('name', 'eq', 'admin')|list %}
+                                <div class="modal fade" id="makeAdminModal{{ user.id }}" tabindex="-1" aria-labelledby="makeAdminModalLabel{{ user.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="makeAdminModalLabel{{ user.id }}">Make Admin</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Are you sure you want to make this user an administrator?</p>
+                                                <p><strong>Name:</strong> {{ user.name }}</p>
+                                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                                <div class="alert alert-warning">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    This will grant the user full administrative privileges.
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                <form action="#" method="POST">
+                                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                                    <button type="submit" class="btn btn-primary">Make Admin</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">No users found</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if users.pages > 1 %}
+        <nav aria-label="User navigation">
+            <ul class="pagination justify-content-center">
+                {% if users.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num, search=request.args.get('search', '')) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for page_num in users.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        {% if page_num == users.page %}
+                            <li class="page-item active" aria-current="page">
+                                <a class="page-link" href="#">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('admin_users', page=page_num, search=request.args.get('search', '')) }}">{{ page_num }}</a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">...</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if users.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_users', page=users.next_num, search=request.args.get('search', '')) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

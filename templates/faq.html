@@ -1,0 +1,49 @@
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4">Frequently Asked Questions</h1>
+    
+    <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                    How do I submit a tender application?
+                </button>
+            </h2>
+            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    To submit a tender application, first register and verify your account. Then browse available tenders, select one you're interested in, and click "Apply". Fill out the application form with your proposal, price quote, and completion time.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                    How are tender winners selected?
+                </button>
+            </h2>
+            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Tender winners are selected based on a scoring system that evaluates price quotes (50%) and completion time (50%). The system automatically calculates scores for approved applications, and administrators make the final selection.
+                </div>
+            </div>
+        </div>
+        
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                    How do I track my application status?
+                </button>
+            </h2>
+            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    You can track your application status in the "My Applications" section. Status updates will be sent to your registered email address. Possible statuses include pending, approved, and rejected.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

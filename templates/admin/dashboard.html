@@ -1,0 +1,165 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Admin Dashboard - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-overview {
+        margin-bottom: 30px;
+    }
+    
+    .chart-container {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard</h2>
+        <div class="date-display text-muted">
+            {{ now.strftime('%d %B %Y') }}
+        </div>
+    </div>
+    
+    <!-- Stats Overview -->
+    <div class="stats-overview">
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="dashboard-card card-primary">
+                    <div class="card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="card-value">{{ total_users }}</div>
+                    <div class="card-label">Total Users</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="dashboard-card card-success">
+                    <div class="card-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <div class="card-value">{{ total_tenders }}</div>
+                    <div class="card-label">Total Tenders</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="dashboard-card card-warning">
+                    <div class="card-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="card-value">{{ active_tenders }}</div>
+                    <div class="card-label">Active Tenders</div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="dashboard-card card-danger">
+                    <div class="card-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="card-value">{{ pending_applications }}</div>
+                    <div class="card-label">Pending Applications</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mb-4">
+        <!-- Tenders -->
+        <div class="col-lg-6 mb-4">
+            <div class="chart-container">
+                <h4 class="mb-4">Tenders</h4>
+                
+                <div class="admin-table table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Deadline</th>
+                                <th>Budget</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tender in recent_tenders %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('tender_details', tender_id=tender.id) }}">
+                                            {{ tender.title|truncate(30) }}
+                                        </a>
+                                    </td>
+                                    <td>{{ tender.category }}</td>
+                                    <td>{{ tender.submission_deadline.strftime('%d/%m/%Y') }}</td>
+                                    <td>₹{{ tender.budget }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No tenders available</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-end mt-3">
+                    <a href="{{ url_for('admin_tenders') }}" class="btn btn-sm btn-outline-primary">View All Tenders</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applications -->
+        <div class="col-lg-6 mb-4">
+            <div class="chart-container">
+                <h4 class="mb-4">Applications</h4>
+                
+                <div class="admin-table table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Tender</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for application in recent_applications %}
+                                <tr>
+                                    <td>{{ application.user.name }}</td>
+                                    <td>
+                                        <a href="{{ url_for('tender_details', tender_id=application.tender.id) }}">
+                                            {{ application.tender.title|truncate(20) }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge status-{{ application.status }}">
+                                            {{ application.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ application.created_at.strftime('%d/%m/%Y') }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center">No applications available</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-end mt-3">
+                    <a href="{{ url_for('admin_applications') }}" class="btn btn-sm btn-outline-primary">View All Applications</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

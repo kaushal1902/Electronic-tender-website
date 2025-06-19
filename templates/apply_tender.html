@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Apply for Tender - Electronic Tender System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .apply-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+    
+    .tender-summary {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .tender-summary-title {
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+    
+    .tender-summary-detail {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .tender-summary-label {
+        font-weight: 600;
+        width: 120px;
+        color: var(--dark-color);
+    }
+    
+    .tender-summary-value {
+        flex: 1;
+    }
+    
+    .note-container {
+        background-color: rgba(52, 152, 219, 0.1);
+        border-left: 4px solid var(--primary-color);
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .note-container i {
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="apply-container">
+        <h2 class="mb-4">Apply for Tender</h2>
+        
+        <!-- Tender Summary -->
+        <div class="tender-summary">
+            <div class="tender-summary-title">{{ tender.title }}</div>
+            
+            <div class="tender-summary-detail">
+                <div class="tender-summary-label">Category:</div>
+                <div class="tender-summary-value">{{ tender.category }}</div>
+            </div>
+            
+            <div class="tender-summary-detail">
+                <div class="tender-summary-label">Budget:</div>
+                <div class="tender-summary-value">₹{{ tender.budget }}</div>
+            </div>
+            
+            <div class="tender-summary-detail">
+                <div class="tender-summary-label">Deadline:</div>
+                <div class="tender-summary-value">{{ tender.submission_deadline.strftime('%d %b %Y, %H:%M') }}</div>
+            </div>
+        </div>
+        
+        <!-- Application Note -->
+        <div class="note-container mb-4">
+            <p class="mb-0"><i class="fas fa-info-circle me-2"></i> Please provide detailed information in your proposal. Applications with comprehensive information have a higher chance of being selected.</p>
+        </div>
+        
+        <!-- Application Form -->
+        <div class="form-container">
+            <form method="POST" action="{{ url_for('apply_tender', tender_id=tender.id) }}" id="tender-application-form">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-4">
+                    {{ form.proposal.label(class="form-label") }}
+                    {{ form.proposal(class="form-control", rows=6, placeholder="Describe your proposal in detail including your approach, methodology, and how you plan to deliver the requirements...") }}
+                    {% if form.proposal.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.proposal.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="form-text">
+                        Provide a comprehensive proposal that addresses all requirements mentioned in the tender.
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        {{ form.price_quote.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            {{ form.price_quote(class="form-control", placeholder="Enter your price quote") }}
+                        </div>
+                        {% if form.price_quote.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.price_quote.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Enter your price quote in INR. Should be realistic and competitive.
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        {{ form.completion_time.label(class="form-label") }}
+                        <div class="input-group">
+                            {{ form.completion_time(class="form-control", placeholder="Enter estimated days") }}
+                            <span class="input-group-text">days</span>
+                        </div>
+                        {% if form.completion_time.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.completion_time.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Provide a realistic timeframe for completing the work.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('tender_details', tender_id=tender.id) }}" class="btn btn-outline-secondary">Cancel</a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

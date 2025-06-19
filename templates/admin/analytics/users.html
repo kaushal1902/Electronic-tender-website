@@ -1,0 +1,171 @@
+{% extends 'admin/analytics/base.html' %}
+
+{% block analytics_title %}User Analytics{% endblock %}
+
+{% block analytics_content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <h5 class="chart-title">Industry Sector Distribution</h5>
+            {% if charts.industry_sectors %}
+                <img src="data:image/png;base64,{{ charts.industry_sectors }}" alt="Industry Sectors Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="analytics-table-container p-3">
+            <h5 class="chart-title">Sector Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Sector</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = namespace(value=0) %}
+                        {% for sector in sector_data %}
+                            {% set total.value = total.value + sector.count %}
+                        {% endfor %}
+                        
+                        {% for sector in sector_data %}
+                            <tr>
+                                <td>{{ sector.name }}</td>
+                                <td class="text-end">{{ sector.count }}</td>
+                                <td class="text-end">
+                                    {% if total.value > 0 %}
+                                        {{ ((sector.count / total.value) * 100)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <h5 class="chart-title">Company Size Distribution</h5>
+            {% if charts.company_sizes %}
+                <img src="data:image/png;base64,{{ charts.company_sizes }}" alt="Company Sizes Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="analytics-table-container p-3">
+            <h5 class="chart-title">Size Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Company Size</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = namespace(value=0) %}
+                        {% for size in size_data %}
+                            {% set total.value = total.value + size.count %}
+                        {% endfor %}
+                        
+                        {% for size in size_data %}
+                            <tr>
+                                <td>{{ size.name }}</td>
+                                <td class="text-end">{{ size.count }}</td>
+                                <td class="text-end">
+                                    {% if total.value > 0 %}
+                                        {{ ((size.count / total.value) * 100)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="chart-container">
+            <h5 class="chart-title">User Growth (Last 12 Months)</h5>
+            {% if charts.user_growth %}
+                <img src="data:image/png;base64,{{ charts.user_growth }}" alt="User Growth Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="analytics-card">
+            <h5 class="card-title">Electronics Sector Performance</h5>
+            <div class="mt-4">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="small">Most Active Electronics Sectors</div>
+                    </div>
+                    
+                    {% set top_sectors = sector_data|sort(attribute='count', reverse=True)|list %}
+                    
+                    {% for sector in top_sectors[:5] %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="small text-muted">{{ sector.name }}</div>
+                                <div class="small fw-bold">{{ sector.count }}</div>
+                            </div>
+                            <div class="progress analytics-progress">
+                                {% if top_sectors[0].count > 0 %}
+                                    {% set width = (sector.count / top_sectors[0].count) * 100 %}
+                                {% else %}
+                                    {% set width = 0 %}
+                                {% endif %}
+                                <div class="progress-bar" role="progressbar" data-width="{{ width }}" style="width: 0%"></div>
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        var progressBars = document.querySelectorAll('.progress-bar[data-width]');
+                                        progressBars.forEach(function(bar) {
+                                            var width = parseFloat(bar.getAttribute('data-width'));
+                                            bar.style.width = width + '%';
+                                        });
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info small">No data available</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

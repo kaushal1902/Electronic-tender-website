@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tender.title }} - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tender-details-container {
+        max-width: 900px;
+        margin: 40px auto;
+    }
+    
+    .tender-meta {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .tender-meta-item {
+        margin-bottom: 15px;
+    }
+    
+    .tender-meta-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 5px;
+    }
+    
+    .tender-requirements {
+        background-color: white;
+        border-left: 4px solid var(--primary-color);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .tender-status {
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .countdown-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .countdown-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+    
+    .countdown-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .application-status {
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .status-pending {
+        background-color: rgba(243, 156, 18, 0.1);
+    }
+    
+    .status-approved {
+        background-color: rgba(46, 204, 113, 0.1);
+    }
+    
+    .status-rejected {
+        background-color: rgba(231, 76, 60, 0.1);
+    }
+    
+    .status-winner {
+        background-color: rgba(46, 204, 113, 0.1);
+        border: 2px solid #2ecc71;
+    }
+    
+    .winner-badge {
+        background-color: #2ecc71;
+        color: white;
+        font-weight: bold;
+        padding: 8px 15px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="tender-details-container">
+        <!-- Tender Header -->
+        <h1 class="mb-4">{{ tender.title }}</h1>
+        
+        <!-- Tender Meta Information -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="tender-meta">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="tender-meta-item">
+                                <div class="tender-meta-label">Category</div>
+                                <div>{{ tender.category }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="tender-meta-item">
+                                <div class="tender-meta-label">Budget</div>
+                                <div>₹{{ tender.budget }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="tender-meta-item">
+                                <div class="tender-meta-label">Posted On</div>
+                                <div>{{ tender.created_at.strftime('%d %b %Y') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="tender-meta-item">
+                                <div class="tender-meta-label">Submission Deadline</div>
+                                <div>{{ tender.submission_deadline.strftime('%d %b %Y, %H:%M') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <!-- Application Status or Apply Button -->
+                {% if current_user.is_authenticated %}
+                    {% if user_application %}
+                        <div class="tender-status">
+                            <h5 class="text-center mb-3">Your Application</h5>
+                            
+                            <div class="application-status status-{{ user_application.status }}">
+                                <div class="fs-5 fw-bold mb-2">
+                                    {% if user_application.status == 'pending' %}
+                                        <i class="fas fa-clock me-2 text-warning"></i>Pending Review
+                                    {% elif user_application.status == 'approved' %}
+                                        <i class="fas fa-check-circle me-2 text-success"></i>Approved
+                                    {% elif user_application.status == 'rejected' %}
+                                        <i class="fas fa-times-circle me-2 text-danger"></i>Rejected
+                                    {% elif user_application.status == 'winner' %}
+                                        <i class="fas fa-trophy me-2 text-success"></i>Winner
+                                    {% endif %}
+                                </div>
+                                <div class="small">
+                                    Submitted on {{ user_application.created_at.strftime('%d %b %Y') }}
+                                </div>
+                            </div>
+                            
+                            {% if user_application.admin_remarks %}
+                                <div class="mt-3">
+                                    <strong>Remarks:</strong>
+                                    <p class="mt-2">{{ user_application.admin_remarks }}</p>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="d-grid mt-3">
+                                <a href="{{ url_for('my_applications') }}" class="btn btn-outline-primary">View All Applications</a>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="tender-status">
+                            <h5 class="text-center mb-3">Submission Window</h5>
+                            
+                            {% if tender.is_open %}
+                                <!-- Countdown Timer if tender is still open -->
+                                <div class="countdown-container">
+                                    <div class="countdown-value tender-deadline" data-deadline="{{ tender.submission_deadline }}">
+                                        Calculating...
+                                    </div>
+                                    <div class="countdown-label">Remaining</div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <a href="{{ url_for('apply_tender', tender_id=tender.id) }}" class="btn btn-primary btn-lg">Apply Now</a>
+                                </div>
+                            {% else %}
+                                <div class="text-center">
+                                    <div class="mb-3 text-danger">
+                                        <i class="fas fa-exclamation-circle fa-3x"></i>
+                                    </div>
+                                    <h6>Submission Deadline Passed</h6>
+                                    <p class="text-muted small mb-0">This tender is no longer accepting applications.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="tender-status">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-lock fa-3x text-primary mb-3"></i>
+                            <h5>Want to apply?</h5>
+                            <p class="text-muted">You need to login or register first to apply for this tender.</p>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+                            <a href="{{ url_for('register') }}" class="btn btn-outline-primary">Register</a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if tender.winner_selected and tender.winner %}
+        <!-- Winner Section -->
+        <div class="details-section mb-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <div class="winner-badge">
+                        <i class="fas fa-trophy me-2"></i> Winner Announced
+                    </div>
+                    <h4>Congratulations to {{ tender.winner.user.name }}</h4>
+                    <p class="mb-0">This tender has been awarded with a winning bid of <strong>₹{{ "%.2f"|format(tender.winner.price_quote) }}</strong></p>
+                    <p>Estimated completion time: <strong>{{ tender.winner.completion_time }} days</strong></p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Tender Description -->
+        <div class="details-section mb-4">
+            <h3 class="mb-3">Description</h3>
+            <div class="tender-description">
+                {{ tender.description|safe }}
+            </div>
+        </div>
+        
+        <!-- Tender Requirements -->
+        <div class="details-section mb-4">
+            <h3 class="mb-3">Requirements</h3>
+            <div class="tender-requirements">
+                {{ tender.requirements|safe }}
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        <div class="text-center mb-5">
+            {% if current_user.is_authenticated %}
+                {% if not user_application and tender.is_open %}
+                    <a href="{{ url_for('apply_tender', tender_id=tender.id) }}" class="btn btn-primary btn-lg">
+                        Apply for This Tender
+                    </a>
+                {% endif %}
+            {% else %}
+                <p class="mb-3">Please login to apply for this tender</p>
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

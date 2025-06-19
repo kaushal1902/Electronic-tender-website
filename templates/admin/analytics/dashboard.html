@@ -1,0 +1,223 @@
+{% extends 'admin/analytics/base.html' %}
+
+{% block analytics_title %}Analytics Dashboard{% endblock %}
+
+{% block analytics_content %}
+<div class="row stats-summary-row">
+    <div class="col-md-3 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-card-value">{{ summary_stats.total_tenders }}</div>
+                    <div class="stats-card-label">Total Tenders</div>
+                </div>
+                <div class="stats-card-icon text-primary">
+                    <i class="fas fa-file-contract fa-2x"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="badge bg-primary">{{ summary_stats.active_tenders }} Active</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-card-value">{{ summary_stats.total_applications }}</div>
+                    <div class="stats-card-label">Applications</div>
+                </div>
+                <div class="stats-card-icon text-success">
+                    <i class="fas fa-clipboard-list fa-2x"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="badge bg-warning">{{ summary_stats.pending_applications }} Pending</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-card-value">{{ summary_stats.total_users }}</div>
+                    <div class="stats-card-label">Registered Users</div>
+                </div>
+                <div class="stats-card-icon text-info">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="badge bg-info">{{ summary_stats.verified_users }} Verified</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="stats-card">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <div class="stats-card-value">{{ summary_stats.avg_applications }}</div>
+                    <div class="stats-card-label">Avg Applications per Tender</div>
+                </div>
+                <div class="stats-card-icon text-warning">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Tender Completion Rate</h5>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                <div class="completion-gauge mb-3">
+                    <div class="position-relative">
+                        <!-- Circular progress representation -->
+                        <svg width="120" height="120" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="#e9ecef" stroke-width="12" />
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="#3498db" stroke-width="12"
+                                    stroke-dasharray="339.292" stroke-dashoffset="{{ 339.292 * (1 - tender_completion.rate / 100) }}" />
+                        </svg>
+                        <div class="completion-value">{{ tender_completion.rate }}%</div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p class="mb-1">{{ tender_completion.completed }} of {{ tender_completion.total_closed }} closed tenders have selected a winner</p>
+                    <small class="text-muted">Based on tenders with passed deadlines</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Top Categories</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table analytics-table">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Tenders</th>
+                                <th>Applications</th>
+                                <th>Engagement</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in summary_stats.top_categories %}
+                                <tr>
+                                    <td>{{ category.category }}</td>
+                                    <td>{{ category.tenders }}</td>
+                                    <td>{{ category.applications }}</td>
+                                    <td>
+                                        {% if category.tenders > 0 %}
+                                            {% set engagement = (category.applications / category.tenders)|round(1) %}
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 me-2">
+                                                    {% set percent = (engagement / 10) * 100 if engagement < 10 else 100 %}
+                                                    <div class="progress-bar progress-bar-{{ percent|int }}" role="progressbar"></div>
+                                                </div>
+                                                <span>{{ engagement }}</span>
+                                            </div>
+                                        {% else %}
+                                            <span>-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">Recent Tender Activity (30 Days)</h5>
+            {% if charts.tender_activity %}
+                <img src="data:image/png;base64,{{ charts.tender_activity }}" alt="Tender Activity Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">Application Status Distribution</h5>
+            {% if charts.application_status %}
+                <img src="data:image/png;base64,{{ charts.application_status }}" alt="Application Status Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">Tender Categories Distribution</h5>
+            {% if charts.categories %}
+                <img src="data:image/png;base64,{{ charts.categories }}" alt="Categories Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">Tender Budget Distribution</h5>
+            {% if charts.budget %}
+                <img src="data:image/png;base64,{{ charts.budget }}" alt="Budget Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">Monthly Activity (Last 12 Months)</h5>
+            {% if charts.monthly_activity %}
+                <img src="data:image/png;base64,{{ charts.monthly_activity }}" alt="Monthly Activity Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">User Growth (Last 12 Months)</h5>
+            {% if charts.user_growth %}
+                <img src="data:image/png;base64,{{ charts.user_growth }}" alt="User Growth Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.progress-bar').forEach(function(bar) {
+        bar.style.width = bar.getAttribute('data-width') + '%';
+    });
+});
+</script>
+{% endblock %}

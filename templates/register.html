@@ -1,0 +1,475 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding-bottom: 50px;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+    
+    .password-requirements {
+        margin-top: 10px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        font-size: 0.85rem;
+    }
+    
+    .password-requirements ul {
+        margin-bottom: 0;
+        padding-left: 20px;
+    }
+    
+    .form-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+    
+    .form-section-title {
+        position: relative;
+        font-weight: 600;
+        color: var(--primary-color);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-control.is-invalid ~ .invalid-feedback {
+        display: block;
+    }
+
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .form-control.is-invalid:focus {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    .alert {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border-radius: 0.25rem;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+
+    .optional-field {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-left: 5px;
+    }
+
+    @media (max-width: 768px) {
+        .register-container {
+            padding: 10px;
+        }
+        
+        .form-container {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="register-container">
+        <div class="form-container">
+            <h2 class="text-center mb-4">Create an Account</h2>
+            <p class="text-center text-muted mb-4">Get Started with TenderVista</p>
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST" action="{{ url_for('register') }}" id="registrationForm" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <h4 class="form-section-title mb-4">Personal Information</h4>
+                
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label required-field") }}
+                    {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), placeholder="Enter your full name") }}
+                    {% if form.name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.email.label(class="form-label required-field") }}
+                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email address") }}
+                    <div class="form-text">We'll send a verification code to this email address.</div>
+                    {% if form.email.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.phone.label(class="form-label required-field") }}
+                    {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="Enter your phone number") }}
+                    {% if form.phone.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.phone.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.password.label(class="form-label required-field") }}
+                    <div class="input-group">
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Create a password") }}
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="password-requirements">
+                        <strong>Password requirements:</strong>
+                        <ul>
+                            <li>At least 6 characters long</li>
+                            <li>Include a mix of letters, numbers, and special characters for stronger security</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    {{ form.confirm_password.label(class="form-label required-field") }}
+                    <div class="input-group">
+                        {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm your password") }}
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.confirm_password.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.confirm_password.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h4 class="form-section-title mt-5 mb-4">Company Information</h4>
+                
+                <div class="mb-3">
+                    {{ form.company_name.label(class="form-label required-field") }}
+                    {{ form.company_name(class="form-control" + (" is-invalid" if form.company_name.errors else ""), placeholder="Enter your company name") }}
+                    {% if form.company_name.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_registration_number.label(class="form-label required-field") }}
+                    {{ form.company_registration_number(class="form-control" + (" is-invalid" if form.company_registration_number.errors else ""), placeholder="Enter your company's registration number") }}
+                    {% if form.company_registration_number.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_registration_number.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_tax_id.label(class="form-label") }}
+                    {{ form.company_tax_id(class="form-control" + (" is-invalid" if form.company_tax_id.errors else ""), placeholder="Enter your company's tax ID or VAT number") }}
+                    <span class="optional-field">(Optional)</span>
+                    {% if form.company_tax_id.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_tax_id.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_website.label(class="form-label") }}
+                    {{ form.company_website(class="form-control" + (" is-invalid" if form.company_website.errors else ""), placeholder="Enter your company website URL") }}
+                    <span class="optional-field">(Optional)</span>
+                    {% if form.company_website.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_website.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_founded_year.label(class="form-label required-field") }}
+                    <select name="company_founded_year" id="yearSelect" class="form-select" required>
+                        <option value="">Select Year</option>
+                        {% for year in range(1900, 2025) %}
+                            <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                    {% if form.company_founded_year.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_founded_year.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_size.label(class="form-label required-field") }}
+                    {{ form.company_size(class="form-select" + (" is-invalid" if form.company_size.errors else "")) }}
+                    {% if form.company_size.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_size.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.industry_sector.label(class="form-label required-field") }}
+                    {{ form.industry_sector(class="form-select" + (" is-invalid" if form.industry_sector.errors else "")) }}
+                    {% if form.industry_sector.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.industry_sector.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.business_description.label(class="form-label") }}
+                    {{ form.business_description(class="form-control" + (" is-invalid" if form.business_description.errors else ""), rows=4, placeholder="Brief description of your company's business activities") }}
+                    <span class="optional-field">(Optional)</span>
+                    {% if form.business_description.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.business_description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    {{ form.company_address.label(class="form-label required-field") }}
+                    {{ form.company_address(class="form-control" + (" is-invalid" if form.company_address.errors else ""), rows=3, placeholder="Enter your company's full address") }}
+                    {% if form.company_address.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company_address.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                    {{ form.submit(class="btn btn-primary btn-lg") }}
+                </div>
+            </form>
+            
+            <div class="text-center mt-4">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize year select
+        const yearSelect = document.getElementById('yearSelect');
+        const currentYear = new Date().getFullYear();
+        
+        // Clear existing options
+        yearSelect.innerHTML = '';
+        
+        // Add default option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'Select Year';
+        yearSelect.appendChild(defaultOption);
+        
+        // Add year options from 1900 to current year
+        for (let year = 1900; year <= currentYear; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        // Form validation
+        const form = document.getElementById('registrationForm');
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                validateField(this);
+            });
+            
+            input.addEventListener('blur', function() {
+                validateField(this);
+            });
+        });
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    isValid = false;
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                showError('Please correct the errors before submitting.');
+            }
+        });
+        
+        function validateField(field) {
+            const feedback = field.nextElementSibling;
+            let isValid = true;
+            
+            // Only validate required fields
+            if (field.hasAttribute('required') || field.closest('.mb-3').querySelector('.required-field')) {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                    if (feedback && feedback.classList.contains('invalid-feedback')) {
+                        feedback.textContent = 'This field is required.';
+                    }
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            }
+            
+            // Email validation
+            if (field.type === 'email' && field.value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(field.value)) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                    if (feedback && feedback.classList.contains('invalid-feedback')) {
+                        feedback.textContent = 'Please enter a valid email address.';
+                    }
+                }
+            }
+            
+            // Password validation
+            if (field.type === 'password' && field.value) {
+                if (field.value.length < 6) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                    if (feedback && feedback.classList.contains('invalid-feedback')) {
+                        feedback.textContent = 'Password must be at least 6 characters long.';
+                    }
+                }
+            }
+            
+            // Confirm password validation
+            if (field.id === 'confirm_password' && field.value) {
+                const password = document.getElementById('password');
+                if (field.value !== password.value) {
+                    isValid = false;
+                    field.classList.add('is-invalid');
+                    if (feedback && feedback.classList.contains('invalid-feedback')) {
+                        feedback.textContent = 'Passwords do not match.';
+                    }
+                }
+            }
+            
+            return isValid;
+        }
+        
+        function showError(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger';
+            alert.textContent = message;
+            form.insertBefore(alert, form.firstChild);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 5000);
+        }
+
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        
+        toggleButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                // Find the password input that's a sibling of this button's parent
+                const passwordField = this.parentElement.querySelector('input');
+                
+                // Toggle the type attribute
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                
+                // Toggle the eye icon
+                const icon = this.querySelector('i');
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+            });
+        });
+    });
+</script>
+{% endblock %}

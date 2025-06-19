@@ -1,0 +1,295 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Email Settings - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h1 class="admin-page-title mb-4">Email Settings</h1>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Email Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin_email_settings') }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mail_server" class="form-label">Mail Server</label>
+                                    {{ form.mail_server(class="form-control", id="mail_server") }}
+                                    {% if form.mail_server.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.mail_server.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Example: smtp.gmail.com</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mail_port" class="form-label">Mail Port</label>
+                                    {{ form.mail_port(class="form-control", id="mail_port") }}
+                                    {% if form.mail_port.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.mail_port.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Example: 587 for TLS, 465 for SSL</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mail_username" class="form-label">Mail Username</label>
+                                    {{ form.mail_username(class="form-control", id="mail_username") }}
+                                    {% if form.mail_username.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.mail_username.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">Your email address</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="mail_password" class="form-label">Mail Password</label>
+                                    {{ form.mail_password(class="form-control", id="mail_password") }}
+                                    {% if form.mail_password.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.mail_password.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <small class="text-muted">For Gmail, use an app password</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.mail_use_tls(class="form-check-input", id="mail_use_tls") }}
+                            <label class="form-check-label" for="mail_use_tls">Use TLS</label>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            {{ form.mail_use_ssl(class="form-check-input", id="mail_use_ssl") }}
+                            <label class="form-check-label" for="mail_use_ssl">Use SSL</label>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label for="mail_default_sender" class="form-label">Default Sender</label>
+                            {{ form.mail_default_sender(class="form-control", id="mail_default_sender") }}
+                            {% if form.mail_default_sender.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.mail_default_sender.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">Default email used as the sender</small>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Settings
+                            </button>
+                            <button type="button" id="test-email" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i>Test Email
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Email Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <p>The system sends the following automatic email notifications:</p>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Registration Verification
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Tender Winner Announcement
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            Application Status Updates
+                        </li>
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            New Tender Notifications
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">Email Troubleshooting</h5>
+                </div>
+                <div class="card-body">
+                    <p>If you're having trouble with email delivery:</p>
+                    <ol>
+                        <li>Check that your SMTP server and port are correct</li>
+                        <li>Ensure your username and password are valid</li>
+                        <li>For Gmail, you must use an App Password if 2FA is enabled</li>
+                        <li>Verify that your email provider allows SMTP connections</li>
+                        <li>Check that you've selected the correct encryption (TLS/SSL)</li>
+                    </ol>
+                    <a href="#" class="btn btn-sm btn-outline-warning mt-2" data-bs-toggle="modal" data-bs-target="#emailHelpModal">
+                        <i class="fas fa-question-circle me-2"></i>Email Setup Guide
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Email Modal -->
+<div class="modal fade" id="testEmailModal" tabindex="-1" aria-labelledby="testEmailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="testEmailModalLabel">Send Test Email</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="test-email-form">
+                    <div class="mb-3">
+                        <label for="test-email-address" class="form-label">Recipient Email</label>
+                        <input type="email" class="form-control" id="test-email-address" required>
+                        <small class="text-muted">Enter the email address to receive the test message</small>
+                    </div>
+                </form>
+                <div id="test-email-result" class="alert d-none mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="send-test-email">Send Test Email</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Help Modal -->
+<div class="modal fade" id="emailHelpModal" tabindex="-1" aria-labelledby="emailHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="emailHelpModalLabel">Email Setup Guide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Gmail Configuration</h6>
+                <ul>
+                    <li><strong>Mail Server:</strong> smtp.gmail.com</li>
+                    <li><strong>Port:</strong> 587</li>
+                    <li><strong>Security:</strong> TLS</li>
+                    <li><strong>Username:</strong> Your full Gmail address</li>
+                    <li><strong>Password:</strong> Your Gmail password or App Password</li>
+                </ul>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> If you have 2-Factor Authentication enabled for your Gmail account, you'll need to create an App Password. <a href="https://support.google.com/accounts/answer/185833" target="_blank">Learn how</a>
+                </div>
+                
+                <h6 class="mt-4">Outlook/Office 365 Configuration</h6>
+                <ul>
+                    <li><strong>Mail Server:</strong> smtp.office365.com</li>
+                    <li><strong>Port:</strong> 587</li>
+                    <li><strong>Security:</strong> STARTTLS</li>
+                    <li><strong>Username:</strong> Your full Outlook/Office 365 email address</li>
+                    <li><strong>Password:</strong> Your email password</li>
+                </ul>
+                
+                <h6 class="mt-4">Yahoo Mail Configuration</h6>
+                <ul>
+                    <li><strong>Mail Server:</strong> smtp.mail.yahoo.com</li>
+                    <li><strong>Port:</strong> 587</li>
+                    <li><strong>Security:</strong> STARTTLS</li>
+                    <li><strong>Username:</strong> Your Yahoo email address</li>
+                    <li><strong>Password:</strong> Your app password (not your Yahoo account password)</li>
+                </ul>
+                <div class="alert alert-info">
+                    <strong>Note:</strong> Yahoo requires an app password for SMTP access. <a href="https://help.yahoo.com/kb/generate-manage-app-passwords-sln15241.html" target="_blank">Learn how</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        // Toggle between TLS and SSL
+        $('#mail_use_tls').change(function() {
+            if($(this).is(':checked')) {
+                $('#mail_use_ssl').prop('checked', false);
+                $('#mail_port').val('587');
+            }
+        });
+        
+        $('#mail_use_ssl').change(function() {
+            if($(this).is(':checked')) {
+                $('#mail_use_tls').prop('checked', false);
+                $('#mail_port').val('465');
+            }
+        });
+        
+        // Show test email modal
+        $('#test-email').click(function() {
+            $('#testEmailModal').modal('show');
+        });
+        
+        // Send test email
+        $('#send-test-email').click(function() {
+            const email = $('#test-email-address').val();
+            if (!email) {
+                return;
+            }
+            
+            const resultEl = $('#test-email-result');
+            resultEl.removeClass('d-none alert-success alert-danger').addClass('alert-info').html('<i class="fas fa-spinner fa-spin me-2"></i> Sending test email...');
+            
+            $.ajax({
+                url: "{{ url_for('admin_test_email') }}",
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({email: email}),
+                success: function(response) {
+                    if (response.success) {
+                        resultEl.removeClass('alert-info alert-danger').addClass('alert-success').html('<i class="fas fa-check-circle me-2"></i> Test email sent successfully!');
+                    } else {
+                        resultEl.removeClass('alert-info alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2"></i> Failed to send test email. Error: ' + response.error);
+                    }
+                },
+                error: function() {
+                    resultEl.removeClass('alert-info alert-success').addClass('alert-danger').html('<i class="fas fa-exclamation-circle me-2"></i> An error occurred while sending the test email.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

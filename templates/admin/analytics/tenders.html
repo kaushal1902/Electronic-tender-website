@@ -1,0 +1,150 @@
+{% extends 'admin/analytics/base.html' %}
+
+{% block analytics_title %}Tender Analytics{% endblock %}
+
+{% block analytics_content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <h5 class="chart-title">Tender Categories Distribution</h5>
+            {% if charts.categories %}
+                <img src="data:image/png;base64,{{ charts.categories }}" alt="Categories Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="analytics-table-container p-3">
+            <h5 class="chart-title">Categories Breakdown</h5>
+            <div class="table-responsive">
+                <table class="table analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = namespace(value=0) %}
+                        {% for cat in categories_data %}
+                            {% set total.value = total.value + cat.count %}
+                        {% endfor %}
+                        
+                        {% for cat in categories_data %}
+                            <tr>
+                                <td>{{ cat.name }}</td>
+                                <td class="text-end">{{ cat.count }}</td>
+                                <td class="text-end">
+                                    {% if total.value > 0 %}
+                                        {{ ((cat.count / total.value) * 100)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <h5 class="chart-title">Tender Budget Distribution</h5>
+            {% if charts.budget %}
+                <img src="data:image/png;base64,{{ charts.budget }}" alt="Budget Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="analytics-table-container p-3">
+            <h5 class="chart-title">Budget Ranges</h5>
+            <div class="table-responsive">
+                <table class="table analytics-table">
+                    <thead>
+                        <tr>
+                            <th>Range</th>
+                            <th class="text-end">Count</th>
+                            <th class="text-end">%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set total = namespace(value=0) %}
+                        {% for budget in budget_data %}
+                            {% set total.value = total.value + budget.count %}
+                        {% endfor %}
+                        
+                        {% for budget in budget_data %}
+                            <tr>
+                                <td>{{ budget.range }}</td>
+                                <td class="text-end">{{ budget.count }}</td>
+                                <td class="text-end">
+                                    {% if total.value > 0 %}
+                                        {{ ((budget.count / total.value) * 100)|round(1) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center">No data available</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="chart-container">
+            <h5 class="chart-title">Monthly Tender Activity (Last 12 Months)</h5>
+            {% if charts.monthly_activity %}
+                <img src="data:image/png;base64,{{ charts.monthly_activity }}" alt="Monthly Activity Chart" class="img-fluid chart-img">
+            {% else %}
+                <div class="alert alert-info">Not enough data to generate chart</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="export-section">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="export-heading mb-0">Export Tender Data</h5>
+                    <p class="text-muted mb-0">Download tender data as CSV for further analysis</p>
+                </div>
+                {% if export_data %}
+                    <button class="btn btn-primary export-csv-btn" 
+                           data-csv="{{ export_data.csv_data }}" 
+                           data-filename="{{ export_data.filename }}">
+                        <i class="fas fa-download me-2"></i>Download CSV
+                    </button>
+                {% else %}
+                    <button class="btn btn-primary" disabled>
+                        <i class="fas fa-download me-2"></i>No Data Available
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

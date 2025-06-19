@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - TenderVista{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 40px auto;
+    }
+    
+    .profile-header {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        color: white;
+        font-size: 2.5rem;
+    }
+    
+    .profile-stats {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 20px;
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 class="mb-2">{{ current_user.name }}</h2>
+            <p class="text-muted mb-0">{{ current_user.email }}</p>
+            
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ current_user.applications.count() }}</div>
+                    <div class="stat-label">Total Applications</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ current_user.applications.filter_by(status='approved').count() }}</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ current_user.applications.filter_by(status='pending').count() }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile Information Form -->
+        <div class="form-container">
+            <h3 class="mb-4">Profile Information</h3>
+            
+            <form method="POST" action="{{ url_for('profile') }}">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control") }}
+                    {% if form.name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" value="{{ current_user.email }}" disabled>
+                    <small class="form-text text-muted">Email cannot be changed.</small>
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.phone.label(class="form-label") }}
+                    {{ form.phone(class="form-control") }}
+                    {% if form.phone.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.phone.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <h4 class="mt-4 mb-3">Company Information</h4>
+                
+                <div class="mb-3">
+                    {{ form.company_name.label(class="form-label") }}
+                    {{ form.company_name(class="form-control") }}
+                    {% if form.company_name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_name.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_registration_number.label(class="form-label") }}
+                    {{ form.company_registration_number(class="form-control") }}
+                    {% if form.company_registration_number.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_registration_number.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_tax_id.label(class="form-label") }}
+                    {{ form.company_tax_id(class="form-control") }}
+                    {% if form.company_tax_id.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_tax_id.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_website.label(class="form-label") }}
+                    {{ form.company_website(class="form-control") }}
+                    {% if form.company_website.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_website.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_founded_year.label(class="form-label") }}
+                    {{ form.company_founded_year(class="form-control") }}
+                    {% if form.company_founded_year.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_founded_year.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.company_size.label(class="form-label") }}
+                    {{ form.company_size(class="form-control") }}
+                    {% if form.company_size.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_size.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.industry_sector.label(class="form-label") }}
+                    {{ form.industry_sector(class="form-control") }}
+                    {% if form.industry_sector.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.industry_sector.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    {{ form.business_description.label(class="form-label") }}
+                    {{ form.business_description(class="form-control", rows=3) }}
+                    {% if form.business_description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.business_description.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    {{ form.company_address.label(class="form-label") }}
+                    {{ form.company_address(class="form-control", rows=3) }}
+                    {% if form.company_address.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.company_address.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
