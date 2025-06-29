@@ -44,14 +44,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Email configuration
 app.config["MAIL_SERVER"] = os.environ.get("MAIL_SERVER", "smtp.gmail.com")
-app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", 587))
+app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT", "email_port"))
 app.config["MAIL_USE_TLS"] = True
 app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME",
-                                             "kaushaldangodra@gmail.com")
+                                             "mail username")
 app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD",
-                                             "igmd qqph uxrb oxom")
+                                             "mail app password")
 app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER",
-                                                   "kaushaldangodra.com")
+                                                   "defaulter sender name")
 
 # Initialize extensions with the app
 db.init_app(app)
