@@ -50,8 +50,8 @@ def create_admin_account(email, password, name):
 def main():
     """Main function to create the admin account"""
     # Get admin credentials from environment variables or use defaults
-    admin_email = os.environ.get("ADMIN_EMAIL", "kaushaldangodra781@gmail.com")
-    admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@123")
+    admin_email = os.environ.get("ADMIN_EMAIL", "your email")
+    admin_password = os.environ.get("ADMIN_PASSWORD", "password")
     admin_name = os.environ.get("ADMIN_NAME", "System Administrator")
     
     # Create the admin account
